@@ -1,0 +1,20 @@
+.video-container {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+
+  img {
+    max-width: 200px;
+    height: auto;
+  }
+
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .file-info {
+    margin-top: 0.5rem;
+  }
+}

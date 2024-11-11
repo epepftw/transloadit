@@ -1,0 +1,91 @@
+<div
+  class="container mx-auto flex flex-col justify-center h-full items-center gap-5 py-10"
+>
+  <div class="w-full flex flex-col items-center">
+    <h2 class="text-2xl font-bold mb-4">Transloadit Uploader</h2>
+    <div id="uppy-dashboard"></div>
+  </div>
+
+  <div class="details w-full flex flex-col items-center">
+    <h2 class="text-2xl font-bold mb-4">Upload Details</h2>
+    @if (isUploading()) {
+    <div class="mt-4 w-96">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-sm font-medium text-gray-700">
+          {{ currentStage() }}
+        </span>
+        <span class="text-sm text-gray-600"> {{ progress() }}% </span>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-2.5">
+        <div
+          class="h-2.5 rounded-full transition-all duration-300"
+          [class]="isEncoding() ? 'bg-green-600' : 'bg-blue-600'"
+          [style.width.%]="progress()"
+        ></div>
+      </div>
+    </div>
+    } @if (error()) {
+    <div class="mt-4 p-3 bg-red-100 text-red-700 rounded-lg">
+      {{ error() }}
+    </div>
+    } @if (totalUploadedFiles() > 0) {
+    <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+      <h3 class="text-lg font-semibold mb-2">Uploaded Files</h3>
+      <ul class="space-y-2">
+        @for (file of files(); track file.id) {
+        <li class="flex flex-col space-y-2">
+          <div class="flex items-center space-x-3">
+            <!-- Thumbnail Image -->
+            @if (file.thumbnail) {
+            <img
+              [src]="file.thumbnail"
+              [alt]="file.name"
+              class="w-12 h-12 object-cover rounded"
+            />
+            }
+
+            <!-- File Details and Controls -->
+            <div class="flex-1 flex items-center justify-between">
+              <span class="text-gray-700">
+                {{
+                  file.webmUrl
+                    ? (file.name | replace : ".mp4" : ".webm")
+                    : file.name
+                }}
+              </span>
+              <span class="text-sm text-gray-500">{{
+                file.convertedSize | fileSize
+              }}</span>
+            </div>
+
+            <button
+              (click)="file.showJson = !file.showJson"
+              class="text-blue-600 hover:text-blue-800 text-sm"
+            >
+              {{ file.showJson ? "▼" : "▶" }} Debug
+            </button>
+          </div>
+
+          <!-- Video Preview -->
+          @if (file.webmUrl) {
+          <video controls class="w-full mt-2">
+            <source [src]="file.webmUrl" type="video/webm" />
+            Your browser does not support the video tag.
+          </video>
+          } @if (file.showJson) {
+          <pre class="text-xs bg-gray-100 p-2 rounded overflow-auto">{{
+            file | json
+          }}</pre>
+          }
+        </li>
+        }
+      </ul>
+    </div>
+    } @else {
+    <div class="mt-4 p-4 bg-gray-100 rounded-lg text-gray-500 text-center">
+      <p>No files uploaded yet</p>
+      <p class="text-sm mt-1">Upload files using the panel above</p>
+    </div>
+    }
+  </div>
+</div>
