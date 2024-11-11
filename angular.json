@@ -39,14 +39,31 @@
             "prerender": true,
             "ssr": {
               "entry": "server.ts"
-            }
+            },
+            "allowedCommonJsDependencies": [
+              "namespace-emitter",
+              "lodash/throttle",
+              "component-emitter",
+              "@transloadit/prettier-bytes",
+              "mime-match",
+              "lodash/debounce",
+              "classnames",
+              "url-parse",
+              "is-stream",
+              "lodash.throttle",
+              "combine-errors",
+              "proper-lockfile",
+              "retry",
+              "lodash/throttle",
+              "lodash/debounce"
+            ]
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
+                  "maximumWarning": "800kB",
                   "maximumError": "1MB"
                 },
                 {
