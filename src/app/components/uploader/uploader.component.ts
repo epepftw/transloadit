@@ -79,14 +79,15 @@ export class UploaderComponent implements OnInit, OnDestroy {
         waitForThumbnailsBeforeUpload: true,
       })
       .use(Dropbox, {
-        companionUrl: COMPANION_URL,
+        companionUrl: 'https://companion.transloadit.com',
         companionAllowedHosts: COMPANION_ALLOWED_HOSTS,
       })
       .use(GoogleDrive, {
-        companionUrl: COMPANION_URL,
+        companionUrl: 'https://companion.transloadit.com',
         companionAllowedHosts: COMPANION_ALLOWED_HOSTS,
       })
       .use(Transloadit, {
+        service: 'https://api2.transloadit.com',
         assemblyOptions: {
           params: {
             auth: { key: 'e2da7231d6c64061a09ee39515362e01' },
@@ -137,23 +138,30 @@ export class UploaderComponent implements OnInit, OnDestroy {
 
         const processedFiles = await Promise.all(
           result.successful.map(async (file: any) => {
-            // Check for the webm conversion results
             let assemblyResults = file.transloadit?.[0];
 
-            // Fetch assembly details if the conversion results are missing
             if (!assemblyResults) {
-              const response = await fetch(file.meta.assembly_url);
+              const assemblyUrl = file.meta.assembly_url.replace(
+                'http://',
+                'https://'
+              );
+              const response = await fetch(assemblyUrl);
               assemblyResults = await response.json();
             }
 
-            // Access the webm-converted file
             const webmFile = assemblyResults.results?.webm_converted?.[0];
-            const webmUrl = webmFile?.url || null;
+            const webmUrl = webmFile?.url
+              ? webmFile.url.replace('http://', 'https://')
+              : null;
 
             return {
               ...file,
-              thumbnail: assemblyResults.results?.thumbnail?.[0]?.url || null,
-              webmUrl: webmUrl, // Store the .webm URL if available
+              thumbnail:
+                assemblyResults.results?.thumbnail?.[0]?.url?.replace(
+                  'http://',
+                  'https://'
+                ) || null,
+              webmUrl: webmUrl,
               originalSize: file.size,
               convertedSize: webmFile?.size || file.size,
             };
