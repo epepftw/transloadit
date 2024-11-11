@@ -79,15 +79,14 @@ export class UploaderComponent implements OnInit, OnDestroy {
         waitForThumbnailsBeforeUpload: true,
       })
       .use(Dropbox, {
-        companionUrl: 'https://companion.transloadit.com',
+        companionUrl: COMPANION_URL,
         companionAllowedHosts: COMPANION_ALLOWED_HOSTS,
       })
       .use(GoogleDrive, {
-        companionUrl: 'https://companion.transloadit.com',
+        companionUrl: COMPANION_URL,
         companionAllowedHosts: COMPANION_ALLOWED_HOSTS,
       })
       .use(Transloadit, {
-        service: 'https://api2.transloadit.com',
         assemblyOptions: {
           params: {
             auth: { key: 'e2da7231d6c64061a09ee39515362e01' },
@@ -138,30 +137,23 @@ export class UploaderComponent implements OnInit, OnDestroy {
 
         const processedFiles = await Promise.all(
           result.successful.map(async (file: any) => {
+            // Check for the webm conversion results
             let assemblyResults = file.transloadit?.[0];
 
+            // Fetch assembly details if the conversion results are missing
             if (!assemblyResults) {
-              const assemblyUrl = file.meta.assembly_url.replace(
-                'http://',
-                'https://'
-              );
-              const response = await fetch(assemblyUrl);
+              const response = await fetch(file.meta.assembly_url);
               assemblyResults = await response.json();
             }
 
+            // Access the webm-converted file
             const webmFile = assemblyResults.results?.webm_converted?.[0];
-            const webmUrl = webmFile?.url
-              ? webmFile.url.replace('http://', 'https://')
-              : null;
+            const webmUrl = webmFile?.url || null;
 
             return {
               ...file,
-              thumbnail:
-                assemblyResults.results?.thumbnail?.[0]?.url?.replace(
-                  'http://',
-                  'https://'
-                ) || null,
-              webmUrl: webmUrl,
+              thumbnail: assemblyResults.results?.thumbnail?.[0]?.url || null,
+              webmUrl: webmUrl, // Store the .webm URL if available
               originalSize: file.size,
               convertedSize: webmFile?.size || file.size,
             };
